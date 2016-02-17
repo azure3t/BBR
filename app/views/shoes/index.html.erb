@@ -1,0 +1,29 @@
+<h1>Welcome <%= @user.first_name %></h1>
+<a href="/users/<%= @user.id%>">Go to dashboard</a>
+<table  style="width:100%; border: 2px solid black; padding:10px">
+  <tr>
+    <td>Product</td>
+    <td>Seller</td>
+    <td>Date Posted</td>
+    <td>Amount</td>
+    <td>Action</td>
+  </tr>
+<% @shoes.each do |s|%>
+<% if Order.pluck('shoe_id').exclude?(s.id)%>
+<tr>
+<td><%=s.name%></td>
+<td><%=s.user.first_name%> <%=s.user.last_name%></td>
+<td><%=s.created_at.to_formatted_s(:db)%></td>
+<td>$<%=s.amount%></td>
+<td>
+<form action='/orders' method='post'>
+  <input type='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'>
+  <input type='hidden' name='s_id' value='<%= s.id %>'>
+  <input type='submit' value='Buy'>
+</form>
+</td>
+</tr>
+<%end%>
+<%end%>
+
+</table>

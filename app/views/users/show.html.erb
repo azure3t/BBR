@@ -1,0 +1,93 @@
+<h1>Hi <%= @user.first_name %></h1>
+
+<a href="/shoes">Go to all products</a>
+
+
+<h3>Sell Product</h3>
+<form action="/shoes" method="post" role="form">
+  <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+  <p>
+    <label for="name">Name</label>
+    <input type="name" class="form-control" name="shoe[name]" placeholder="Enter name">
+  </p>
+  <p>
+    <label for="amount">Amount</label>
+    <input type="amount" class="form-control" name="shoe[amount]" placeholder="Enter name">
+  </p>
+  <button type="submit" class="btn btn-default">Sell</button>
+</form>
+
+
+<h3>My products that are not yet sold:</h3>
+<table  style="width:100%; border: 2px solid black; padding:10px">
+  <tr>
+    <td>Product</td>
+    <td>Date Posted</td>
+    <td>Amount</td>
+    <td>Action</td>
+  </tr>
+<% current_user.shoes.each do |s|%>
+<% if Order.pluck('shoe_id').exclude?(s.id)%>
+  <tr>
+    <td><%=s.name%></td>
+    <td><%=s.created_at.to_formatted_s(:db)%></td>
+    <td>$<%=s.amount%></td>
+    <td>
+        <form action="/shoes/<%= s.id %>" method='post'>
+          <input type='hidden' name='authenticity_token' value='<%= form_authenticity_token %>'>
+          <input type='hidden' name='_method' value='delete'>
+          <input type='submit' value='Delete'>
+        </form>
+    </td>
+  </tr>
+<%end%>
+<%end%>
+
+</table>
+
+<h3>My Sales:</h3>
+<table  style="width:100%"><table  style="width:100%; border: 2px solid black; padding:10px">  <tr>
+    <td>Product</td>
+    <td>Date Bought</td>
+    <td>Buyer</td>
+    <td>Action</td>
+  </tr><% @sum1 = 0%>
+<% current_user.shoes.each do |s|%>  <% @sum1 += s.amount%>
+<% if Order.pluck('shoe_id').include?(s.id)%>
+  <tr>
+    <td><%= s.name%></td>
+    <td><%= Order.find_by(shoe_id: s.id).created_at.to_formatted_s(:db)%></td>
+    <td><%= Order.find_by(shoe_id: s.id).user.first_name%> <%= Order.find_by(shoe_id: s.id).user.last_name%></td>
+    <td>$<%= s.amount%></td>
+  </tr>
+
+<%end%>
+<%end%>
+</table>
+
+<h4>Total: $<%= @sum1%></h4>
+
+
+<h3>My Purchases:</h3>
+<table  style="width:100%; border: 2px solid black; padding:10px">
+  <tr>
+    <td>Product</td>
+    <td>Date Bought</td>
+    <td>Seller</td>
+    <td>Amount</td>
+  </tr>
+<% @sum = 0%>
+<% @shoes.each do |s|%>
+    <% if s.users_ordered.include?(current_user) %>
+  <tr>
+  <% @sum += s.amount%>
+    <td><%= s.name%></td>
+    <td><%= Order.find_by(shoe_id: s.id).created_at.to_formatted_s(:db)%></td>
+    <td><%= s.user.first_name%> <%= s.user.last_name%></td>
+    <td>$<%= s.amount%></td>
+  </tr>
+<%end%>
+<%end%>
+
+</table>
+<h4>Total: $<%= @sum%></h4>
