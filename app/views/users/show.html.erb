@@ -52,8 +52,9 @@
     <td>Buyer</td>
     <td>Action</td>
   </tr><% @sum1 = 0%>
-<% current_user.shoes.each do |s|%>  <% @sum1 += s.amount%>
+<% current_user.shoes.each do |s|%>
 <% if Order.pluck('shoe_id').include?(s.id)%>
+<% @sum1 += s.amount%>
   <tr>
     <td><%= s.name%></td>
     <td><%= Order.find_by(shoe_id: s.id).created_at.to_formatted_s(:db)%></td>
